@@ -54,13 +54,13 @@ class GameScene(QGraphicsScene):
                 self.setCell(x, y, 1)
                 # Set cell alive
                 self.gameField.cells[x][y] = 1
-                print "Cell X:", x, "Y:", y, "Z:", 1
+                print(f"Cell X: {x}, Y: {y}, Z: 1")
             else:
                 # Set cell icon hidden
                 self.setCell(x, y, 0)
                 # Set cell dead
                 self.gameField.cells[x][y] = 0
-                print "Cell X:", x, "Y:", y, "Z:", 0
+                print(f"Cell X: {x}, Y: {y}, Z: 0")
 
     def mouseMoveEvent(self, event):
         # See event mousePressEvent.  This event applies while mouse is moving
@@ -72,7 +72,7 @@ class GameScene(QGraphicsScene):
             if (self.gameField.cells[x][y] == 0):
                 self.setCell(x, y,  1)
                 self.gameField.cells[x][y] = 1
-                print "Cell X:", x, "Y:", y, "Z:", 1
+                print(f"Cell X: {x}, Y: {y}, Z: 1")
 
     def setCell(self, x, y, z):
         if (z):
