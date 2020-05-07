@@ -13,7 +13,7 @@ class GameScene(QGraphicsScene):
         self.timer = QTimer()
 
         # Connect timer ticking to a slot
-        self.connect(self.timer, SIGNAL("timeout()"), self.timerTick)
+        self.timer.timeout.connect(self.timerTick)
 
         # Create a two-dimensional 150000 unit graphic item array corresponding
         # each cell
@@ -217,18 +217,9 @@ class LifeWindow(QWidget):
         self.pushButtonNew.setDisabled(True)
 
         # Connect pushbutton clicks to their slots
-        self.connect(
-            self.pushButtonStart,
-            SIGNAL("clicked()"),
-            self.pushButtonStart_clicked)
-        self.connect(
-            self.pushButtonPause,
-            SIGNAL("clicked()"),
-            self.pushButtonPause_clicked)
-        self.connect(
-            self.pushButtonNew,
-            SIGNAL("clicked()"),
-            self.pushButtonNew_clicked)
+        self.pushButtonStart.clicked.connect(self.pushButtonStart_clicked)
+        self.pushButtonPause.clicked.connect(self.pushButtonPause_clicked)
+        self.pushButtonNew.clicked.connect(self.pushButtonNew_clicked)
 
         # Create a gridlaoyt for the pushbuttons and the graphicsview
         gridLayout = QGridLayout(self)
