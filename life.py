@@ -52,13 +52,13 @@ class GameScene(QGraphicsScene):
             # Check if the cell is alive
             if (self.gameField.cells[x][y] == 0):
                 # Set cell icon visible
-                self.setCell(x, y, 1)
+                self.setVisible(x, y, True)
                 # Set cell alive
                 self.gameField.cells[x][y] = 1
                 print(f"Cell X: {x}, Y: {y}, Z: 1")
             else:
                 # Set cell icon hidden
-                self.setCell(x, y, 0)
+                self.setVisible(x, y, False)
                 # Set cell dead
                 self.gameField.cells[x][y] = 0
                 print(f"Cell X: {x}, Y: {y}, Z: 0")
@@ -71,17 +71,12 @@ class GameScene(QGraphicsScene):
 
         if (x > 0 and x < 149 and y > 0 and y < 99):
             if (self.gameField.cells[x][y] == 0):
-                self.setCell(x, y,  1)
+                self.setVisible(x, y, True)
                 self.gameField.cells[x][y] = 1
                 print(f"Cell X: {x}, Y: {y}, Z: 1")
 
-    def setCell(self, x, y, z):
-        if (z):
-            # Set cell icon visible
-            self.cellIcons[x][y].setVisible(True)
-        else:
-            # Set cell icon hidden
-            self.cellIcons[x][y].setVisible(False)
+    def setVisible(self, x, y, visible):
+        self.cellIcons[x][y].setVisible(visible)
 
     def timerTick(self):
         # This method is called when the timer "ticks"
@@ -93,15 +88,15 @@ class GameScene(QGraphicsScene):
         for x in range(150):
             for y in range(100):
                 if (self.gameField.cells[x][y] > 0):
-                    self.setCell(x, y, 1)
+                    self.setVisible(x, y, True)
                 else:
-                    self.setCell(x, y, 0)
+                    self.setVisible(x, y, False)
 
     def clearScene(self):
         # Set all alive cells dead
         for x in range(150):
             for y in range(100):
-                self.setCell(x, y, 0)
+                self.setVisible(x, y, False)
 
         # Clear the alive cells from the array containing states for each cell
         self.gameField.cells = [[0] * 100 for i in range(150)]
