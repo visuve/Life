@@ -41,6 +41,9 @@ class GameScene(QGraphicsScene):
 
         print("Scene created")
 
+    def isInBounds(self, x, y):
+        return x > 0 and x < 149 and y > 0 and y < 99
+
     def mousePressEvent(self, event):
         # Mouse coordinates have to be divided with cell width and height in
         # order to get them correctly
@@ -48,7 +51,7 @@ class GameScene(QGraphicsScene):
         y = int(event.lastScenePos().y() / self.cH)
 
         # Check if mouse coordinates are out of bounds
-        if (x > 0 and x < 149 and y > 0 and y < 99):
+        if (self.isInBounds(x, y)):
             # Check if the cell is alive
             if (self.gameField.isAliveAt(x, y) == False):
                 # Set cell icon alive & visible
@@ -62,12 +65,12 @@ class GameScene(QGraphicsScene):
                 print(f"Cell X: {x}, Y: {y}, Z: 0")
 
     def mouseMoveEvent(self, event):
-        # See event mousePressEvent.  This event applies while mouse is moving
+        # See event mousePressEvent. This event applies while mouse is moving
 
         x = int(event.lastScenePos().x() / self.cW)
         y = int(event.lastScenePos().y() / self.cH)
 
-        if (x > 0 and x < 149 and y > 0 and y < 99):
+        if (self.isInBounds(x, y)):
             if (self.gameField.isAliveAt(x, y) == False):
                 self.setVisible(x, y, True)
                 self.gameField.cells[x][y] = True
