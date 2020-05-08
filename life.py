@@ -62,7 +62,7 @@ class GameScene(QGraphicsScene):
                 print(f"Cell X: {x}, Y: {y}, Z: 0")
 
     def mouseMoveEvent(self, event):
-        # See event mousePressEvent. This event applies while mouse is moving
+        # See event mousePressEvent.  This event applies while mouse is moving
 
         x = int(event.lastScenePos().x() / self.cW)
         y = int(event.lastScenePos().y() / self.cH)
@@ -85,10 +85,8 @@ class GameScene(QGraphicsScene):
         # "Drawing" all the dead and alive cells corrensponding each coordinate
         for x in range(150):
             for y in range(100):
-                if (self.gameField.isAliveAt(x, y)):
-                    self.setVisible(x, y, True)
-                else:
-                    self.setVisible(x, y, False)
+                self.setVisible(x, y, visible = self.gameField.isAliveAt(x, y))
+
 
     def clearScene(self):
         # Set all alive cells dead
@@ -127,8 +125,8 @@ class GameField:
 
         newCells = [[False] * 100 for i in range(150)]
 
-        for x in range(149):
-            for y in range(99):
+        for x in range(1, 149):
+            for y in range(1, 99):
 
                 ''' Check if the cell is alive and then
                     check the count of neighbour of each cell
@@ -144,49 +142,50 @@ class GameField:
                 # Set the count of neighbours of each cell as zero at start
                 neighbours = 0
 
-                if (x > 0 and y > 0):
-
-                    if (self.cells[x - 1][y - 1] == True):
-                        neighbours += 1
-                    if (self.cells[x - 1][y] == True):
-                        neighbours += 1
-                    if (self.cells[x - 1][y + 1] == True):
-                        neighbours += 1
-
-                    if (self.cells[x][y - 1] == True):
-                        neighbours += 1
-                    if (self.cells[x][y + 1] == True):
-                        neighbours += 1
-                    if (self.cells[x + 1][y - 1] == True):
-                        neighbours += 1
-
-                if (self.cells[x + 1][y] == True):
+                # Top row
+                if (self.cells[x - 1][y + 1]):
                     neighbours += 1
-                if (self.cells[x + 1][y + 1] == True):
+                if (self.cells[x][y + 1]):
+                    neighbours += 1
+                if (self.cells[x + 1][y + 1]):
                     neighbours += 1
 
-                # If the count of cells neigbours is less than two,
-                # mark the cell as dead due to underpopulation
+                # Middle row
+                if (self.cells[x - 1][y]):
+                    neighbours += 1
+                if (self.cells[x + 1][y]):
+                    neighbours += 1
+
+                # Bottom row
+                if (self.cells[x - 1][y - 1]):
+                    neighbours += 1
+                if (self.cells[x][y - 1]):
+                    neighbours += 1
+                if (self.cells[x + 1][y - 1]):
+                    neighbours += 1
+
+                # Rules from: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+
+                # 1. Any live cell with fewer than two live neighbours dies,
+                # as if by underpopulation.
                 if (neighbours < 2):
                     newCells[x][y] = False
                     continue
 
-                # If cell has more than three neigbours, mark the cell
-                # as dead due to overpopulation
-                if (neighbours > 3):
-                    newCells[x][y] = False
-                    continue
-
-                # If the cell is alive and it has two or three neighbours keep
-                # the cell alive
-                if ((neighbours == 2 or neighbours == 3) and
-                        self.cells[x][y] == True):
+                # 2. Any live cell with two or three live neighbours lives on
+                # to the next generation.
+                if ((neighbours == 2 or neighbours == 3) and self.cells[x][y] == True):
                     newCells[x][y] = True
                     continue
 
-                # If the cell is dead and it has three neighbours mark
-                # the cell alive
-                if (neighbours == 3 and self.cells[x][y] == False):
+                # 3. Any live cell with more than three live neighbours dies,
+                # as if by overpopulation.
+                if (neighbours > 3):
+                    newCells[x][y] = False
+
+                # 4. Any dead cell with exactly three live neighbours becomes
+                # a live cell, as if by reproduction.
+                if (neighbours == 3):
                     newCells[x][y] = True
                     continue
 
