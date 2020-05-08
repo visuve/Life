@@ -57,8 +57,7 @@ class GameScene(QGraphicsScene):
         isAlive = self.gameField.isAliveAt(x, y)
 
         # Invert cell
-        self.setVisible(x, y, not isAlive)
-        self.gameField.cells[x][y] = not isAlive
+        self.toggleCell(x, y, not isAlive)
         print(f"Cell X: {x}, Y: {y}, Z: 1")
 
     def mouseMoveEvent(self, event):
@@ -71,28 +70,29 @@ class GameScene(QGraphicsScene):
             return
 
         if (not self.gameField.isAliveAt(x, y)):
-            self.setVisible(x, y, True)
-            self.gameField.cells[x][y] = True
+            self.toggleCell(x, y, True)
             print(f"Cell X: {x}, Y: {y}, Z: 1")
 
     def setVisible(self, x, y, visible):
         self.cellIcons[x][y].setVisible(visible)
 
+    def toggleCell(self, x, y, alive):
+        self.gameField.cells[x][y] = alive
+        self.setVisible(x, y, alive)
+
     def timerTick(self):
-        # This method is called when the timer "ticks"
+        # This method is called each time the timer "ticks"
 
         # The game field call the setVisible function for each cell.
         # This reduces the amount of looping for the large array
         self.gameField.calculateCells(self.setVisible)
 
     def clearScene(self):
-        # Set all alive cells dead
+        # Set all cells dead
         for x in range(150):
             for y in range(100):
-                self.setVisible(x, y, False)
+                self.toggleCell(x, y, False)
 
-        # Clear the alive cells from the array containing states for each cell
-        self.gameField.reset()
         print("Scene cleared")
 
 
@@ -220,7 +220,15 @@ class LifeWindow(QWidget):
 
         self.setWindowTitle("PyQt Conway's Game of Life (c) visuve 2011")
 
+        # Initialize GraphicsView which contains our custom scene
         self.graphicsView = QGraphicsView()
+        self.gameScene = GameScene()
+        self.graphicsView.setScene(self.gameScene)
+
+        # Enable graphicsview antialiasing and disable scrollbars
+        self.graphicsView.setRenderHints(QPainter.Antialiasing)
+        self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         # Create pushbuttons
         self.pushButtonStart = QPushButton("Start", self)
@@ -243,17 +251,6 @@ class LifeWindow(QWidget):
         gridLayout.addWidget(self.pushButtonStart, 1, 0)
         gridLayout.addWidget(self.pushButtonPause, 1, 1)
         gridLayout.addWidget(self.pushButtonNew, 1, 2)
-
-        # Create an instance of graphicsscene object called gamescene and set
-        # it as the
-        # current scene of the graphicsview
-        self.gameScene = GameScene()
-        self.graphicsView.setScene(self.gameScene)
-
-        # Enable graphicsview antialiasing and disable scrollbars
-        self.graphicsView.setRenderHints(QPainter.Antialiasing)
-        self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         print("Window created")
 
