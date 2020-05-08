@@ -81,14 +81,9 @@ class GameScene(QGraphicsScene):
     def timerTick(self):
         # This method is called when the timer "ticks"
 
-        # Call for method calculating live and dead cells
-        self.gameField.calculateCells()
-
-        # "Drawing" all the dead and alive cells corrensponding each coordinate
-        for x in range(150):
-            for y in range(100):
-                self.setVisible(x, y, visible = self.gameField.isAliveAt(x, y))
-
+        # The game field call the setVisible function for each cell.
+        # This reduces the amount of looping for the large array
+        self.gameField.calculateCells(self.setVisible)
 
     def clearScene(self):
         # Set all alive cells dead
@@ -164,7 +159,7 @@ class GameField:
 
         return neighbours
 
-    def calculateCells(self):
+    def calculateCells(self, callback):
         neighbours = 0
 
         newCells = [[False] * 100 for i in range(150)]
@@ -178,24 +173,31 @@ class GameField:
                 # as if by underpopulation.
                 if (neighbours < 2):
                     newCells[x][y] = False
+                    callback(x, y, False)
                     continue
 
                 # 2. Any live cell with two or three live neighbours lives on
                 # to the next generation.
                 if ((neighbours == 2 or neighbours == 3) and self.cells[x][y]):
                     newCells[x][y] = True
+                    callback(x, y, True)
                     continue
 
                 # 3. Any live cell with more than three live neighbours dies,
                 # as if by overpopulation.
                 if (neighbours > 3):
                     newCells[x][y] = False
+                    callback(x, y, False)
+                    continue
 
                 # 4. Any dead cell with exactly three live neighbours becomes
                 # a live cell, as if by reproduction.
                 if (neighbours == 3):
                     newCells[x][y] = True
+                    callback(x, y, True)
                     continue
+
+                callback(x, y, False)
 
         # Swap the buffer, i.e. the changed cells to the actual ones
         self.cells = newCells
