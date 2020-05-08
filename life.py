@@ -51,18 +51,15 @@ class GameScene(QGraphicsScene):
         y = int(event.lastScenePos().y() / self.cH)
 
         # Check if mouse coordinates are out of bounds
-        if (self.isInBounds(x, y)):
-            # Check if the cell is alive
-            if (self.gameField.isAliveAt(x, y) == False):
-                # Set cell icon alive & visible
-                self.setVisible(x, y, True)
-                self.gameField.cells[x][y] = True
-                print(f"Cell X: {x}, Y: {y}, Z: 1")
-            else:
-                # Set cell icon dead & hidden
-                self.setVisible(x, y, False)
-                self.gameField.cells[x][y] = False
-                print(f"Cell X: {x}, Y: {y}, Z: 0")
+        if (not self.isInBounds(x, y)):
+            return
+
+        isAlive = self.gameField.isAliveAt(x, y)
+
+        # Invert cell
+        self.setVisible(x, y, not isAlive)
+        self.gameField.cells[x][y] = not isAlive
+        print(f"Cell X: {x}, Y: {y}, Z: 1")
 
     def mouseMoveEvent(self, event):
         # See event mousePressEvent. This event applies while mouse is moving
@@ -70,11 +67,13 @@ class GameScene(QGraphicsScene):
         x = int(event.lastScenePos().x() / self.cW)
         y = int(event.lastScenePos().y() / self.cH)
 
-        if (self.isInBounds(x, y)):
-            if (self.gameField.isAliveAt(x, y) == False):
-                self.setVisible(x, y, True)
-                self.gameField.cells[x][y] = True
-                print(f"Cell X: {x}, Y: {y}, Z: 1")
+        if (not self.isInBounds(x, y)):
+            return
+
+        if (not self.gameField.isAliveAt(x, y)):
+            self.setVisible(x, y, True)
+            self.gameField.cells[x][y] = True
+            print(f"Cell X: {x}, Y: {y}, Z: 1")
 
     def setVisible(self, x, y, visible):
         self.cellIcons[x][y].setVisible(visible)
@@ -124,7 +123,7 @@ class GameField:
         self.cells = [[False] * 100 for i in range(150)]
 
     def isAliveAt(self, x, y):
-        return self.cells[x][y] == True
+        return self.cells[x][y]
 
     def calculateNeighbours(self, x, y):
         ''' Check if the cell is alive and then
@@ -183,7 +182,7 @@ class GameField:
 
                 # 2. Any live cell with two or three live neighbours lives on
                 # to the next generation.
-                if ((neighbours == 2 or neighbours == 3) and self.cells[x][y] == True):
+                if ((neighbours == 2 or neighbours == 3) and self.cells[x][y]):
                     newCells[x][y] = True
                     continue
 
