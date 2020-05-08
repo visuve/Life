@@ -50,29 +50,27 @@ class GameScene(QGraphicsScene):
         # Check if mouse coordinates are out of bounds
         if (x > 0 and x < 149 and y > 0 and y < 99):
             # Check if the cell is alive
-            if (self.gameField.cells[x][y] == 0):
-                # Set cell icon visible
+            if (self.gameField.isAliveAt(x, y) == False):
+                # Set cell icon alive & visible
                 self.setVisible(x, y, True)
-                # Set cell alive
-                self.gameField.cells[x][y] = 1
+                self.gameField.cells[x][y] = True
                 print(f"Cell X: {x}, Y: {y}, Z: 1")
             else:
-                # Set cell icon hidden
+                # Set cell icon dead & hidden
                 self.setVisible(x, y, False)
-                # Set cell dead
-                self.gameField.cells[x][y] = 0
+                self.gameField.cells[x][y] = False
                 print(f"Cell X: {x}, Y: {y}, Z: 0")
 
     def mouseMoveEvent(self, event):
-        # See event mousePressEvent.  This event applies while mouse is moving
+        # See event mousePressEvent. This event applies while mouse is moving
 
         x = int(event.lastScenePos().x() / self.cW)
         y = int(event.lastScenePos().y() / self.cH)
 
         if (x > 0 and x < 149 and y > 0 and y < 99):
-            if (self.gameField.cells[x][y] == 0):
+            if (self.gameField.isAliveAt(x, y) == False):
                 self.setVisible(x, y, True)
-                self.gameField.cells[x][y] = 1
+                self.gameField.cells[x][y] = True
                 print(f"Cell X: {x}, Y: {y}, Z: 1")
 
     def setVisible(self, x, y, visible):
@@ -87,7 +85,7 @@ class GameScene(QGraphicsScene):
         # "Drawing" all the dead and alive cells corrensponding each coordinate
         for x in range(150):
             for y in range(100):
-                if (self.gameField.cells[x][y] > 0):
+                if (self.gameField.isAliveAt(x, y)):
                     self.setVisible(x, y, True)
                 else:
                     self.setVisible(x, y, False)
@@ -99,7 +97,7 @@ class GameScene(QGraphicsScene):
                 self.setVisible(x, y, False)
 
         # Clear the alive cells from the array containing states for each cell
-        self.gameField.cells = [[0] * 100 for i in range(150)]
+        self.gameField.cells = [[False] * 100 for i in range(150)]
         print("Scene cleared")
 
 
@@ -109,14 +107,25 @@ class GameField:
 
         # Create two two-dimensional arrays for the current cells and the cells
         # which are about to come alive
-        self.cells = [[0] * 100 for i in range(150)]
-        self.newCells = [[0] * 100 for i in range(150)]
+        self.cells = [[False] * 100 for i in range(150)]
+
+        # A "glider" For testing purposes
+        '''
+        self.cells[50][50] = True
+        self.cells[51][50] = True
+        self.cells[51][48] = True
+        self.cells[52][49] = True
+        self.cells[52][50] = True
+        '''
+
+    def isAliveAt(self, x, y):
+        return self.cells[x][y] == True
 
     def calculateCells(self):
         # This method contains all the actual game logic
         neighbours = 0
 
-        self.newCells = [[0] * 100 for i in range(150)]
+        newCells = [[False] * 100 for i in range(150)]
 
         for x in range(149):
             for y in range(99):
@@ -137,51 +146,53 @@ class GameField:
 
                 if (x > 0 and y > 0):
 
-                    if (self.cells[x - 1][y - 1] > 0):
+                    if (self.cells[x - 1][y - 1] == True):
                         neighbours += 1
-                    if (self.cells[x - 1][y] > 0):
+                    if (self.cells[x - 1][y] == True):
                         neighbours += 1
-                    if (self.cells[x - 1][y + 1] > 0):
-                        neighbours += 1
-
-                    if (self.cells[x][y - 1] > 0):
-                        neighbours += 1
-                    if (self.cells[x][y + 1] > 0):
-                        neighbours += 1
-                    if (self.cells[x + 1][y - 1] > 0):
+                    if (self.cells[x - 1][y + 1] == True):
                         neighbours += 1
 
-                if (self.cells[x + 1][y] > 0):
+                    if (self.cells[x][y - 1] == True):
+                        neighbours += 1
+                    if (self.cells[x][y + 1] == True):
+                        neighbours += 1
+                    if (self.cells[x + 1][y - 1] == True):
+                        neighbours += 1
+
+                if (self.cells[x + 1][y] == True):
                     neighbours += 1
-                if (self.cells[x + 1][y + 1] > 0):
+                if (self.cells[x + 1][y + 1] == True):
                     neighbours += 1
 
                 # If the count of cells neigbours is less than two,
                 # mark the cell as dead due to underpopulation
                 if (neighbours < 2):
-                    self.newCells[x][y] = 0
+                    newCells[x][y] = False
+                    continue
 
                 # If cell has more than three neigbours, mark the cell
                 # as dead due to overpopulation
                 if (neighbours > 3):
-                    self.newCells[x][y] = 0
+                    newCells[x][y] = False
+                    continue
 
-                # If the cell is dead and it has two or three neighbours mark
-                # the cell alive alive
+                # If the cell is alive and it has two or three neighbours keep
+                # the cell alive
                 if ((neighbours == 2 or neighbours == 3) and
-                        self.cells[x][y] > 0):
-                    self.newCells[x][y] = self.cells[x][y] + 1
+                        self.cells[x][y] == True):
+                    newCells[x][y] = True
+                    continue
 
                 # If the cell is dead and it has three neighbours mark
-                # the cell alive alive
-                if (neighbours == 3 and self.cells[x][y] == 0):
-                    self.newCells[x][y] = 1
+                # the cell alive
+                if (neighbours == 3 and self.cells[x][y] == False):
+                    newCells[x][y] = True
+                    continue
 
         # Set the newborn and killed cells to the array
         # containing the cells for the game logic
-        for x in range(150):
-            for y in range(100):
-                self.cells[x][y] = self.newCells[x][y]
+        self.cells = newCells
 
 
 class LifeWindow(QWidget):
@@ -270,9 +281,9 @@ class LifeWindow(QWidget):
         self.pushButtonPause.setDisabled(True)
         self.pushButtonNew.setEnabled(True)
 
-# Execution of the actual program
-application = QApplication(sys.argv)
-application_window = LifeWindow()
-application_window.show()
-application_window.resizeEvent(None)
-application.exec_()
+if __name__ == '__main__':
+    application = QApplication(sys.argv)
+    application_window = LifeWindow()
+    application_window.show()
+    application_window.resizeEvent(None)
+    application.exec_()
