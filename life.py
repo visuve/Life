@@ -206,15 +206,17 @@ class LifeWindow(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
-        # Set the LifeWindow widget to the middle of the screen and set default
-        # width and height
-        self.setGeometry(
-            QApplication.desktop().width() / 2,
-            QApplication.desktop().height() / 2,
-            655,
-            525)
+        # Set the LifeWindow widget to the middle of the screen and resize
+        # to half of the screen size
 
-        # Add title
+        screen = QGuiApplication.primaryScreen();
+        screenGeometry = screen.geometry();
+        w = screenGeometry.width() / 2
+        h = screenGeometry.height() / 2
+        x = screenGeometry.width() / 2 - w / 2
+        y = screenGeometry.height() / 2 - h / 2
+        self.setGeometry(x, y, w, h)
+
         self.setWindowTitle("PyQt Conway's Game of Life (c) visuve 2011")
 
         self.graphicsView = QGraphicsView()
