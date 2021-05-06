@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 
 
 class GameScene(QGraphicsScene):
@@ -20,8 +20,8 @@ class GameScene(QGraphicsScene):
         self.cellIcons = [[QGraphicsRectItem()] * 100 for i in range(150)]
 
         # Set background as grey and apply over it a light gray rectangle
-        self.setBackgroundBrush(Qt.gray)
-        self.addRect(0, 0, 600, 400, QPen(Qt.black), QBrush(Qt.lightGray))
+        self.setBackgroundBrush(Qt.GlobalColor.gray)
+        self.addRect(0, 0, 600, 400, QPen(Qt.GlobalColor.black), QBrush(Qt.GlobalColor.lightGray))
 
         # Default cell width
         self.cW = 4
@@ -33,8 +33,8 @@ class GameScene(QGraphicsScene):
             for y in range(100):
                 icon = QGraphicsRectItem()
                 icon.setRect(x * self.cW, y * self.cH, self.cW, self.cH)
-                icon.setPen(QPen(Qt.black))
-                icon.setBrush(QBrush(Qt.darkGray))
+                icon.setPen(QPen(Qt.GlobalColor.black))
+                icon.setBrush(QBrush(Qt.GlobalColor.darkGray))
                 icon.setVisible(False)
                 self.cellIcons[x][y] = icon
                 self.addItem(self.cellIcons[x][y])
@@ -226,9 +226,9 @@ class LifeWindow(QWidget):
         self.graphicsView.setScene(self.gameScene)
 
         # Enable graphicsview antialiasing and disable scrollbars
-        self.graphicsView.setRenderHints(QPainter.Antialiasing)
-        self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.graphicsView.setRenderHints(QPainter.RenderHints.Antialiasing)
+        self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         # Create pushbuttons
         self.pushButtonStart = QPushButton("Start", self)
@@ -256,7 +256,7 @@ class LifeWindow(QWidget):
 
     def resizeEvent(self, event):
         # Allways upon user resizing the window the aspect ratio is kept at 3:2
-        self.graphicsView.fitInView(0, 0, 600, 400, Qt.KeepAspectRatio)
+        self.graphicsView.fitInView(0, 0, 600, 400, Qt.AspectRatioMode.KeepAspectRatio)
 
     def pushButtonStartClicked(self):
         # Start the graphicsscenes own timer and start the whole game and its
@@ -293,4 +293,4 @@ if __name__ == '__main__':
     application_window = LifeWindow()
     application_window.show()
     application_window.resizeEvent(None)
-    application.exec_()
+    application.exec()
